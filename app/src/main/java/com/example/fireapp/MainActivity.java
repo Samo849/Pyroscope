@@ -10,6 +10,14 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.fireapp.databinding.ActivityMainBinding;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity{
 
 
@@ -29,7 +37,33 @@ public class MainActivity extends AppCompatActivity{
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-
+        // Add HTTP request code here for testing
+        fetchHttpAsset();
     }
+
+    private void fetchHttpAsset() {
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("http://lukamali.com/ttn2value/data/70B3D57ED0070837.json") // Replace with your HTTP URL
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+
+                }
+            }
+        });
+    }
+
 
 }
