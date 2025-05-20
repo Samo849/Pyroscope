@@ -1,5 +1,7 @@
 package com.example.fireapp.ui.home;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -43,17 +46,32 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         GoogleMap mMap = googleMap;
 
         // Add markers
-        LatLng sydney = new LatLng(-34, 151);
-        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney").snippet("Additional information here"));
+        LatLng senzor01 = new LatLng(46.0928, 14.3416);
+        mMap.addMarker(new MarkerOptions()
+                        .position(senzor01)
+                        .title("Marker of sensor 01")
+                        .snippet("Default color marker")
+                // .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)) // Default is RED
+        );
 
-        LatLng newYork = new LatLng(40.7128, -74.0060);
-        googleMap.addMarker(new MarkerOptions().position(newYork).title("Marker in New York").snippet("Additional information here"));
+        LatLng sensor02 = new LatLng(46.0954, 14.3383);
+        mMap.addMarker(new MarkerOptions()
+                .position(sensor02)
+                .title("Marker of sensor 02")
+                .snippet("Blue default marker")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))); // Or HUE_BLUE, HUE_CYAN, etc.
 
-        LatLng tokyo = new LatLng(35.6895, 139.6917);
-        googleMap.addMarker(new MarkerOptions().position(tokyo).title("Marker in Tokyo").snippet("Additional information here"));
+        LatLng sensor03 = new LatLng(46.12, 14.31);
+        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fire);
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, 100, 120, true);
+        mMap.addMarker(new MarkerOptions()
+                .position(sensor03)
+                .title("Marker of sensor 03")
+                .snippet("Blue default marker")
+                .icon(BitmapDescriptorFactory.fromBitmap(scaledBitmap)));
 
         // Move the camera to the first marker
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 10));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(senzor01, 12));
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
