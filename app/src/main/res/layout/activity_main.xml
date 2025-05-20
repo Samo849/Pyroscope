@@ -33,6 +33,20 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="269dp" />
 
+    <TextView
+        android:id="@+id/local_json"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:text="Hello World!"
+
+        android:textSize="19sp"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="314dp" />
+
     <fragment
         android:id="@+id/nav_host_fragment_activity_main"
         android:name="androidx.navigation.fragment.NavHostFragment"

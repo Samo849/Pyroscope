@@ -17,6 +17,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fireapp.databinding.ActivityMainBinding;
+import com.example.fireapp.models.FireModel;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,10 +30,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity{
 
     TextView data;
+    TextView jsonTextView;
     String url;
     JSONArray fires2023; // Add a field for the JSON
 
@@ -51,30 +56,35 @@ public class MainActivity extends AppCompatActivity{
         NavigationUI.setupWithNavController(binding.navView, navController);
 
         data = findViewById(R.id.data);
+        jsonTextView = findViewById(R.id.local_json);
+
         url = "http://lukamali.com/ttn2value/data/70B3D57ED0070837.json";
 
-        // Load the sloveniaFires2023.json from assets
-        fires2023 = loadSloveniaFires2023Json();
-        // You can now use sloveniaFires2023Json as needed
-
-
+        // Load the JSON file from server
         getDataFromServer();
+
+        // Load the JSON file from assets
+        List<FireModel> fires = loadFires2023WithGson();
+        if (fires != null && !fires.isEmpty()) {
+            FireModel firstFire = fires.get(0);
+
+            jsonTextView.setText(firstFire.acq_date + " " + firstFire.latitude);
+        }
+
     }
 
-    private JSONArray loadSloveniaFires2023Json() {
-        AssetManager assetManager = getAssets();
+    private List<FireModel> loadFires2023WithGson() {
         try {
             InputStream inputStream = getAssets().open("fires2023.json");
             int size = inputStream.available();
             byte[] buffer = new byte[size];
             inputStream.read(buffer);
             inputStream.close();
-
-            // fetch
             String jsonString = new String(buffer, StandardCharsets.UTF_8);
 
-            return new JSONArray(jsonString);
-        } catch (IOException | JSONException e) {
+            Gson gson = new Gson();
+            return gson.fromJson(jsonString, new TypeToken<List<FireModel>>(){}.getType());
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
@@ -91,6 +101,8 @@ public class MainActivity extends AppCompatActivity{
                             // Parse the JSON response
                             String decodedPayloadStr = jsonData.getString("decoded_payload");
                             JSONObject decodedPayload = new JSONObject(decodedPayloadStr);
+
+
                             // get message:
                             String someValue = decodedPayload.getString("data");
                             // get time:
@@ -129,6 +141,5 @@ public class MainActivity extends AppCompatActivity{
         }
         return false;
     }
-
-
 }
+
