@@ -82,7 +82,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         marker.getSnippet()
                 );
                 bottomSheet.show(getChildFragmentManager(), "MarkerInfoBottomSheet");
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 5));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
 
                 return true; // Return true to consume the click event
             }

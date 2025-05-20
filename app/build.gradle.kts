@@ -63,6 +63,8 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.android.volley:volley:1.2.1")
+    implementation("com.google.code.gson:gson:2.10.1")
 
 
 }
