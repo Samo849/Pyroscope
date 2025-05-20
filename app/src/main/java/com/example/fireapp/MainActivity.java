@@ -58,11 +58,13 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.notifications) {
                 replaceFragment(new NotificationsFragment());
             }
+
             return true;
         });
 
+
         data = findViewById(R.id.data);
-        jsonTextView = findViewById(R.id.local_json);
+        //jsonTextView = findViewById(R.id.local_json);
 
         url = "http://lukamali.com/ttn2value/data/70B3D57ED0070837.json";
 
@@ -74,10 +76,8 @@ public class MainActivity extends AppCompatActivity {
         if (fires != null && !fires.isEmpty()) {
             FireModel firstFire = fires.get(0);
 
-            jsonTextView.setText(firstFire.acq_date + " " + firstFire.latitude);
+            //jsonTextView.setText(firstFire.acq_date + " " + firstFire.latitude);
         }
-
-
     }
 
     private List<FireModel> loadFires2023WithGson() {
