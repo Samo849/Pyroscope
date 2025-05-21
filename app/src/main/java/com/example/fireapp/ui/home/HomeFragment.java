@@ -10,8 +10,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.fireapp.MainActivity;
 import com.example.fireapp.R;
 import com.example.fireapp.databinding.FragmentHomeBinding;
+import com.example.fireapp.models.satelliteFireModel;
+import com.example.fireapp.models.sensorDataModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -20,6 +23,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
@@ -45,21 +53,60 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         GoogleMap mMap = googleMap;
 
-        // Add markers
-        LatLng senzor01 = new LatLng(46.0928, 14.3416);
-        mMap.addMarker(new MarkerOptions()
-                        .position(senzor01)
-                        .title("Marker of sensor 01")
-                        .snippet("Default color marker")
-                // .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)) // Default is RED
-        );
 
-        LatLng sensor02 = new LatLng(46.0954, 14.3383);
-        mMap.addMarker(new MarkerOptions()
-                .position(sensor02)
-                .title("Marker of sensor 02")
-                .snippet("Blue default marker")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))); // Or HUE_BLUE, HUE_CYAN, etc.
+        // fires from assets
+        List<satelliteFireModel> fires = ((MainActivity) requireActivity()).loadFires2023WithGson();
+        // Format the time
+
+
+
+        if (fires != null) {
+            for (satelliteFireModel fire : fires) {
+                String formattedTime = fire.acq_time.length() == 4
+                        ? fire.acq_time.substring(0, 2) + ":" + fire.acq_time.substring(2)
+                        : fire.acq_time;
+
+                LatLng fireLocation = new LatLng(fire.latitude, fire.longitude);
+                String snippet = "Brightness: " + fire.brightness +
+                        "\nDate: " + fire.acq_date +
+                        "\nTime: " + formattedTime +
+                        "\nDetected by Satellite: " + fire.satellite +
+                        "\nConfidence: " + fire.confidence + "%";
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(fireLocation)
+                        .title("Fire ID: " + fire.id)
+                        .snippet(snippet)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            }
+        }
+        // adding sensor markers
+        List<sensorDataModel> sensors = ((MainActivity) requireActivity()).sensorDataList;
+        LatLng sensorLocation = new LatLng(46.12, 14.31); // Default location for the camera
+        if (sensors != null) {
+            for (sensorDataModel sensor : sensors) {
+                sensorLocation = new LatLng(sensor.latitude, sensor.longitude);
+                String snippet = "Device ID: " + sensor.deviceId +
+                        "\nApplication ID: " + sensor.applicationId +
+                        "\nTime: " + formatTimestamp(sensor.timeOfDetection) +
+                        "\nSignal Quality: " + sensor.signalQuality +
+                        "\nData: " + sensor.data;
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(sensorLocation)
+                        .title("Sensor Data")
+                        .snippet(snippet)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+
+            }
+        }
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sensorLocation, 12));
+
+
+
+
+        // manually added markers Add markers
 
         LatLng sensor03 = new LatLng(46.12, 14.31);
         Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fire);
@@ -71,7 +118,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 .icon(BitmapDescriptorFactory.fromBitmap(scaledBitmap)));
 
         // Move the camera to the first marker
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(senzor01, 12));
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -93,5 +139,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public static String formatTimestamp(String isoTimestamp) {
+        Instant instant = Instant.parse(isoTimestamp);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.systemDefault());
+        return formatter.format(instant);
     }
 }

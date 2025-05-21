@@ -16,15 +16,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fireapp.databinding.ActivityMainBinding;
+import com.example.fireapp.models.sensorDataModel;
 import com.example.fireapp.ui.dashboard.DashboardFragment;
 import com.example.fireapp.ui.home.HomeFragment;
 import com.example.fireapp.ui.notifications.NotificationsFragment;
-import com.example.fireapp.models.FireModel;
+import com.example.fireapp.models.satelliteFireModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -32,7 +32,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     TextView jsonTextView;
     String url;
     JSONArray fires2023; // Add a field for the JSON
+    public List<sensorDataModel> sensorDataList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,15 +75,15 @@ public class MainActivity extends AppCompatActivity {
         getDataFromServer();
 
         // Load the JSON file from assets
-        List<FireModel> fires = loadFires2023WithGson();
+        List<satelliteFireModel> fires = loadFires2023WithGson();
         if (fires != null && !fires.isEmpty()) {
-            FireModel firstFire = fires.get(0);
+            satelliteFireModel firstFire = fires.get(0);
 
             //jsonTextView.setText(firstFire.acq_date + " " + firstFire.latitude);
         }
     }
 
-    private List<FireModel> loadFires2023WithGson() {
+    public List<satelliteFireModel> loadFires2023WithGson() {
         try {
             InputStream inputStream = getAssets().open("fires2023.json");
             int size = inputStream.available();
@@ -90,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             String jsonString = new String(buffer, StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            return gson.fromJson(jsonString, new TypeToken<List<FireModel>>(){}.getType());
+            return gson.fromJson(jsonString, new TypeToken<List<satelliteFireModel>>(){}.getType());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -103,24 +106,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONObject jsonData = response.getJSONObject("uplink_message");
 
-                            // Parse the JSON response
-                            String decodedPayloadStr = jsonData.getString("decoded_payload");
-                            JSONObject decodedPayload = new JSONObject(decodedPayloadStr);
-
-
-                            // get message:
-                            String someValue = decodedPayload.getString("data");
-                            // get time:
-                            String receivedAt = jsonData.getString("received_at");
-
-                            if (isRecent(receivedAt)) {
-                                data.setText("Recent: " + someValue + "\n" + jsonData.getString("received_at"));
-                            } else {
-                                data.setText("Not recent: " + someValue + "\n" + jsonData.getString("received_at"));
+                            sensorDataModel newSensorData = parseSensorData(response);
+                            if (newSensorData != null) {
+                                updateSensorDataList(newSensorData);
                             }
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -134,6 +124,61 @@ public class MainActivity extends AppCompatActivity {
 
         );
         Volley.newRequestQueue(this).add(request);
+    }
+
+    public sensorDataModel parseSensorData(JSONObject response) {
+        try {
+            // Extract data from JSON
+            JSONObject endDeviceIds = response.getJSONObject("end_device_ids");
+            String deviceId = endDeviceIds.getString("device_id");
+            String applicationId = endDeviceIds.getJSONObject("application_ids").getString("application_id");
+
+            String timeOfDetection = response.getString("received_at");
+
+            JSONObject uplinkMessage = response.getJSONObject("uplink_message");
+            String signalQuality = uplinkMessage.getJSONArray("rx_metadata")
+                    .getJSONObject(0)
+                    .getString("snr");
+
+            String data = uplinkMessage.getJSONObject("decoded_payload").getString("data");
+
+            JSONObject location = uplinkMessage.getJSONArray("rx_metadata")
+                    .getJSONObject(0)
+                    .getJSONObject("location");
+            double latitude = location.getDouble("latitude");
+            double longitude = location.getDouble("longitude");
+
+            // Create and return the sensorDataModel object
+            return new sensorDataModel(deviceId, applicationId, timeOfDetection, signalQuality, data, latitude, longitude);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    private void updateSensorDataList(sensorDataModel newSensorData) {
+        boolean sensorExists = false;
+
+        for (int i = 0; i < sensorDataList.size(); i++) {
+            sensorDataModel existingSensor = sensorDataList.get(i);
+            if (existingSensor.deviceId.equals(newSensorData.deviceId)) {
+                // Update the existing sensor data
+                sensorDataList.set(i, newSensorData);
+                sensorExists = true;
+                break;
+            }
+        }
+
+        if (!sensorExists) {
+            // Add new sensor data
+            sensorDataList.add(newSensorData);
+        }
+
+        // Debugging or UI update
+        for (sensorDataModel sensor : sensorDataList) {
+            System.out.println("Device ID: " + sensor.deviceId + ", Data: " + sensor.data);
+        }
     }
 
     private void replaceFragment(Fragment fragment) {

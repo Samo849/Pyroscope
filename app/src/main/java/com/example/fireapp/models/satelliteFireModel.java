@@ -1,6 +1,6 @@
 package com.example.fireapp.models;
 
-public class FireModel {
+public class satelliteFireModel {
     public int id;
     public double latitude;
     public double longitude;
