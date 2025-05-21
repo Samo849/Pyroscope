@@ -2,6 +2,7 @@ package com.example.fireapp.ui.home;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -142,9 +143,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public static String formatTimestamp(String isoTimestamp) {
-        Instant instant = Instant.parse(isoTimestamp);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.systemDefault());
-        return formatter.format(instant);
+        Instant instant = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            instant = Instant.parse(isoTimestamp);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .withZone(ZoneId.systemDefault());
+            return formatter.format(instant);
+        }
+        return isoTimestamp;
     }
 }
