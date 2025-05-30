@@ -32,7 +32,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // sendNotification(remoteMessage.getFrom(), remoteMessage.getNotification().getBody());
     }
-/*
+    /*
     private void sendNotification(String from, String body) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
 
@@ -41,7 +41,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Toast.makeText(MyFirebaseMessagingService.this.getAplicationConext(), from + ": " + body, Toast.LENGTH_LONG).show();
             }
         });
-    } */
+    }*/
 
 
     private void sendRegistrationToServer(String token) {

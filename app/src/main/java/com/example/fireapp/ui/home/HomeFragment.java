@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.example.fireapp.ui.home.MarkerInfoBottomSheet;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -34,6 +35,10 @@ import java.util.List;
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentHomeBinding binding;
+
+    GoogleMap mMap;
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,7 +57,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        GoogleMap mMap = googleMap;
+        mMap = googleMap;
 
 
         // fires from assets
@@ -83,29 +88,26 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         }
         // adding sensor markers
         List<sensorDataModel> sensors = ((MainActivity) requireActivity()).sensorDataList;
+
+
         LatLng sensorLocation = new LatLng(46.12, 14.31); // Default location for the camera
         if (sensors != null) {
             for (sensorDataModel sensor : sensors) {
                 sensorLocation = new LatLng(sensor.latitude, sensor.longitude);
-                String snippet = "Device ID: " + sensor.deviceId +
-                        "\nApplication ID: " + sensor.applicationId +
-                        "\nTime: " + formatTimestamp(sensor.timeOfDetection) +
-                        "\nSignal Quality: " + sensor.signalQuality +
-                        "\nData: " + sensor.data;
+                String snippet = createSnippet(sensor);
 
-                mMap.addMarker(new MarkerOptions()
+                Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(sensorLocation)
                         .title("Sensor Data")
                         .snippet(snippet)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
+                sensor.marker = marker;
+
 
             }
         }
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sensorLocation, 12));
-
-
-
 
         // manually added markers Add markers
 
@@ -124,17 +126,58 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 // Show BottomSheetDialogFragment with marker info
-                com.example.fireapp.ui.home.MarkerInfoBottomSheet bottomSheet = com.example.fireapp.ui.home.MarkerInfoBottomSheet.newInstance(
-                        marker.getTitle(),
-                        marker.getSnippet()
-                );
-                bottomSheet.show(getChildFragmentManager(), "MarkerInfoBottomSheet");
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
+                showMarkerInfo(marker);
+                return true;
 
-                return true; // Return true to consume the click event
             }
         });
+
+
     }
+
+    public void updateSnippets(List<sensorDataModel> sensors) {
+        for(sensorDataModel sensor : sensors) {
+            if (sensor.marker != null) {
+                String snippet = createSnippet(sensor);
+                sensor.marker.setSnippet(snippet);
+            }
+        }
+    }
+
+    private String createSnippet(sensorDataModel sensor) {
+        return "Device ID: " + sensor.deviceId +
+                "\nApplication ID: " + sensor.applicationId +
+                "\nTime: " + formatTimestamp(sensor.timeOfDetection) +
+                "\nSignal Quality: " + sensor.signalQuality +
+                "\nData: " + sensor.data.fire + " | " + sensor.data.normal + " | " + sensor.data.wind + " | " + sensor.data.rain;
+    }
+
+    private void createMarker(Marker marker) {
+        if (marker == null) {
+            LatLng defaultLocation = new LatLng(46.12, 14.31); // Default location for the camera
+            marker = mMap.addMarker(new MarkerOptions()
+                    .position(defaultLocation)
+                    .title("Default Marker")
+                    .snippet("This is a default marker")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        }
+    }
+
+    public void showMarkerInfo(Marker marker) {
+        // TODO if marker isnt defined yet do it first, also update the data displayed
+
+        if(marker == null) {
+            createMarker(marker);
+        }
+
+        MarkerInfoBottomSheet bottomSheet = MarkerInfoBottomSheet.newInstance(
+                marker.getTitle(),
+                marker.getSnippet()
+        );
+        bottomSheet.show(getChildFragmentManager(), "MarkerInfoBottomSheet");
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
+    }
+
 
     @Override
     public void onDestroyView() {

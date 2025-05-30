@@ -2,6 +2,7 @@ package com.example.fireapp;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.TextView;
 import android.content.res.AssetManager;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fireapp.databinding.ActivityMainBinding;
+import com.example.fireapp.models.classificatonsModel;
 import com.example.fireapp.models.sensorDataModel;
 import com.example.fireapp.ui.dashboard.DashboardFragment;
 import com.example.fireapp.ui.home.HomeFragment;
@@ -28,6 +30,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import com.example.fireapp.utils.utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,16 +44,19 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
     TextView data;
     TextView jsonTextView;
-    String url;
-    String url2;
 
     JSONArray fires2023; // Add a field for the JSON
+
+    private boolean isFirstRun = true;
+
+    private Handler handler = new Handler();
+    private Runnable periodicTask;
+
     public List<sensorDataModel> sensorDataList = new ArrayList<>();
 
     @Override
@@ -76,11 +83,8 @@ public class MainActivity extends AppCompatActivity {
         data = findViewById(R.id.data);
         //jsonTextView = findViewById(R.id.local_json);
 
-        url = "http://lukamali.com/ttn2value/data/70B3D57ED0070837.json";
-        url2 = "http://lukamali.com/ttn2value/data/70B3D57ED0071075.json";
 
-        // Load the JSON file from server
-        getDataFromServer();
+
 
         // Load the JSON file from assets
         List<satelliteFireModel> fires = loadFires2023WithGson();
@@ -103,10 +107,21 @@ public class MainActivity extends AppCompatActivity {
                         String token = task.getResult();
                         TextView tokenView = findViewById(R.id.token);
                         tokenView.setText(token);
-                        // Log.d(TAG, token);
-                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        // get it once at startup
+        String url = "http://lukamali.com/ttn2value/data/70B3D57ED0070837.json";
+        String url2 = "http://lukamali.com/ttn2value/data/70B3D57ED0071075.json";
+
+        getDataFromServer(url);
+        getDataFromServer(url2);
+
+
+
+        // periodic check every 60 seconds
+        startPeriodicCheck();
 
     }
 
@@ -127,15 +142,14 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
-
-    public void getDataFromServer() {
+    public void getDataFromServer(String url) {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
 
-                            sensorDataModel newSensorData = parseSensorData(response);
+                            sensorDataModel newSensorData = utils.parseSensorData(response);
                             if (newSensorData != null) {
                                 updateSensorDataList(newSensorData);
                             }
@@ -154,35 +168,8 @@ public class MainActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(request);
     }
 
-    public sensorDataModel parseSensorData(JSONObject response) {
-        try {
-            // Extract data from JSON
-            JSONObject endDeviceIds = response.getJSONObject("end_device_ids");
-            String deviceId = endDeviceIds.getString("device_id");
-            String applicationId = endDeviceIds.getJSONObject("application_ids").getString("application_id");
+    // very ugly, but works. it parses the JSON response, if params are missing it fills them with default values
 
-            String timeOfDetection = response.getString("received_at");
-
-            JSONObject uplinkMessage = response.getJSONObject("uplink_message");
-            String signalQuality = uplinkMessage.getJSONArray("rx_metadata")
-                    .getJSONObject(0)
-                    .getString("snr");
-
-            String data = uplinkMessage.getJSONObject("decoded_payload").getString("data");
-
-            JSONObject location = uplinkMessage.getJSONArray("rx_metadata")
-                    .getJSONObject(0)
-                    .getJSONObject("location");
-            double latitude = location.getDouble("latitude");
-            double longitude = location.getDouble("longitude");
-
-            // Create and return the sensorDataModel object
-            return new sensorDataModel(deviceId, applicationId, timeOfDetection, signalQuality, data, latitude, longitude);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
 
     private void updateSensorDataList(sensorDataModel newSensorData) {
@@ -190,8 +177,12 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < sensorDataList.size(); i++) {
             sensorDataModel existingSensor = sensorDataList.get(i);
+
+
             if (existingSensor.deviceId.equals(newSensorData.deviceId)) {
                 // Update the existing sensor data
+                newSensorData.marker = existingSensor.marker;
+
                 sensorDataList.set(i, newSensorData);
                 sensorExists = true;
                 break;
@@ -201,6 +192,20 @@ public class MainActivity extends AppCompatActivity {
         if (!sensorExists) {
             // Add new sensor data
             sensorDataList.add(newSensorData);
+        }
+        // check here if fire is detected
+        if(newSensorData.data.fire > 0.5 && !isFirstRun) {
+
+            // Show a toast message
+            // Toast.makeText(this, "Fire detected by sensor: " + newSensorData.deviceId, Toast.LENGTH_LONG).show();
+
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+            if (currentFragment instanceof HomeFragment) {
+                ((HomeFragment) currentFragment).showMarkerInfo(newSensorData.marker);
+            }
+
+            // TODO: check if its recent, also check if user already saw this warning
+
         }
 
         // Debugging or UI update
@@ -226,6 +231,44 @@ public class MainActivity extends AppCompatActivity {
             return !duration.isNegative() && duration.toHours() < 1;
         }
         return false;
+    }
+
+
+    private void startPeriodicCheck() {
+        periodicTask = new Runnable() {
+            @Override
+            public void run() {
+                if (isFirstRun) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            isFirstRun = false;
+                            periodicTask.run(); // Start the periodic task after 10 seconds
+                        }
+                    }, 10 * 1000);
+                } else {
+                    String url = "http://lukamali.com/ttn2value/data/70B3D57ED0070837.json";
+                    String url2 = "http://lukamali.com/ttn2value/data/70B3D57ED0071075.json";
+                    getDataFromServer(url);
+                    getDataFromServer(url2);
+                    handler.postDelayed(this, 10 * 1000);
+                    // update snippets, etc.
+                }
+            }
+        };
+        handler.post(periodicTask);
+    }
+
+
+
+        // Load the JSON file from server
+
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(periodicTask);
     }
 
 }
