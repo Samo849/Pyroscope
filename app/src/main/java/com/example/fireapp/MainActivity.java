@@ -4,7 +4,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.content.res.AssetManager;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,6 +23,9 @@ import com.example.fireapp.ui.dashboard.DashboardFragment;
 import com.example.fireapp.ui.home.HomeFragment;
 import com.example.fireapp.ui.notifications.NotificationsFragment;
 import com.example.fireapp.models.satelliteFireModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -42,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     TextView data;
     TextView jsonTextView;
     String url;
+    String url2;
+
     JSONArray fires2023; // Add a field for the JSON
     public List<sensorDataModel> sensorDataList = new ArrayList<>();
 
@@ -70,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         //jsonTextView = findViewById(R.id.local_json);
 
         url = "http://lukamali.com/ttn2value/data/70B3D57ED0070837.json";
+        url2 = "http://lukamali.com/ttn2value/data/70B3D57ED0071075.json";
 
         // Load the JSON file from server
         getDataFromServer();
@@ -81,6 +89,25 @@ public class MainActivity extends AppCompatActivity {
 
             //jsonTextView.setText(firstFire.acq_date + " " + firstFire.latitude);
         }
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            // Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+                        TextView tokenView = findViewById(R.id.token);
+                        tokenView.setText(token);
+                        // Log.d(TAG, token);
+                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
     }
 
     public List<satelliteFireModel> loadFires2023WithGson() {
@@ -93,7 +120,8 @@ public class MainActivity extends AppCompatActivity {
             String jsonString = new String(buffer, StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            return gson.fromJson(jsonString, new TypeToken<List<satelliteFireModel>>(){}.getType());
+            return gson.fromJson(jsonString, new TypeToken<List<satelliteFireModel>>() {
+            }.getType());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -189,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     public boolean isRecent(String isoTimestamp) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Instant messageTime = Instant.parse(isoTimestamp);
@@ -200,4 +227,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+
 }
