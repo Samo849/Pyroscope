@@ -96,9 +96,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 sensorLocation = new LatLng(sensor.latitude, sensor.longitude);
                 String snippet = createSnippet(sensor);
 
+
+                String title = "Sensor data";
+                if(sensor.data.fire > 0.5) {
+                    title = "🔥New Fire detected!🔥" ;
+                }
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(sensorLocation)
-                        .title("Sensor Data")
+                        .title(title)
                         .snippet(snippet)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
@@ -149,7 +154,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 "\nApplication ID: " + sensor.applicationId +
                 "\nTime: " + formatTimestamp(sensor.timeOfDetection) +
                 "\nSignal Quality: " + sensor.signalQuality +
-                "\nData: " + sensor.data.fire + " | " + sensor.data.normal + " | " + sensor.data.wind + " | " + sensor.data.rain;
+                "\nFire: " + sensor.data.fire + "%" +
+                "\nNormal: " + sensor.data.normal + "%" +
+                "\nWind: " + sensor.data.wind + "%" +
+                "\nRain: " + sensor.data.rain + "%";
     }
 
     private void createMarker(Marker marker) {

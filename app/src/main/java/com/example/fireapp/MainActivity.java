@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        data = findViewById(R.id.data);
+
         //jsonTextView = findViewById(R.id.local_json);
 
 
@@ -105,8 +105,8 @@ public class MainActivity extends AppCompatActivity {
 
                         // Get new FCM registration token
                         String token = task.getResult();
-                        TextView tokenView = findViewById(R.id.token);
-                        tokenView.setText(token);
+                        // TextView tokenView = findViewById(R.id.token);
+                        // tokenView.setText(token);
                         // Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -245,23 +245,19 @@ public class MainActivity extends AppCompatActivity {
                             isFirstRun = false;
                             periodicTask.run(); // Start the periodic task after 10 seconds
                         }
-                    }, 10 * 1000);
+                    }, 2 * 1000);
                 } else {
                     String url = "http://lukamali.com/ttn2value/data/70B3D57ED0070837.json";
                     String url2 = "http://lukamali.com/ttn2value/data/70B3D57ED0071075.json";
                     getDataFromServer(url);
                     getDataFromServer(url2);
-                    handler.postDelayed(this, 10 * 1000);
+                    handler.postDelayed(this, 120 * 1000);
                     // update snippets, etc.
                 }
             }
         };
         handler.post(periodicTask);
     }
-
-
-
-        // Load the JSON file from server
 
 
 
