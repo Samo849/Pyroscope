@@ -172,17 +172,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void showMarkerInfo(Marker marker) {
-        // TODO if marker isnt defined yet do it first, also update the data displayed
-
-        if(marker == null) {
+        if (marker == null) {
             createMarker(marker);
         }
 
-        MarkerInfoBottomSheet bottomSheet = MarkerInfoBottomSheet.newInstance(
+        com.example.fireapp.ui.home.MarkerInfoDialog dialog = com.example.fireapp.ui.home.MarkerInfoDialog.newInstance(
                 marker.getTitle(),
                 marker.getSnippet()
         );
-        bottomSheet.show(getChildFragmentManager(), "MarkerInfoBottomSheet");
+        dialog.show(getChildFragmentManager(), "MarkerInfoDialog");
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
     }
 

@@ -4,12 +4,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.fireapp.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class MarkerInfoBottomSheet extends BottomSheetDialogFragment {
@@ -24,6 +27,23 @@ public class MarkerInfoBottomSheet extends BottomSheetDialogFragment {
         args.putString(ARG_SNIPPET, snippet);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
+        if (dialog != null) {
+            FrameLayout bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                // Set to expanded state to take up more screen space
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                // Optionally set a specific height (e.g., 50% of screen height)
+                bottomSheet.getLayoutParams().height = (int) (getResources().getDisplayMetrics().heightPixels * 0.5);
+                bottomSheet.requestLayout();
+            }
+        }
     }
 
     @Nullable
