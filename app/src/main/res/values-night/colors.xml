@@ -2,10 +2,10 @@
 <resources>
 
     <color name="pastel_orange">#ebc79a</color>
-    <color name="main_background">#FFFFFF</color>
+    <color name="main_background">#262626</color>
     <color name="red_warning">#cc0000</color>
-    <color name="text_color">#181818</color>
+    <color name="text_color">#D7D7D7</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="window_color">#EDEAE6</color>
+    <color name="window_color">#434343</color>
 </resources>
