@@ -152,7 +152,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private String createSnippet(sensorDataModel sensor) {
         return "Device ID: " + sensor.deviceId +
                 "\nApplication ID: " + sensor.applicationId +
-                "\nTime: " + formatTimestamp(sensor.timeOfDetection) +
+                "\nTime: " + sensor.timeOfDetection +
                 "\nSignal Quality: " + sensor.signalQuality +
                 "\nFire: " + sensor.data.fire + "%" +
                 "\nNormal: " + sensor.data.normal + "%" +
@@ -189,16 +189,5 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    public static String formatTimestamp(String isoTimestamp) {
-        Instant instant = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            instant = Instant.parse(isoTimestamp);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                    .withZone(ZoneId.systemDefault());
-            return formatter.format(instant);
-        }
-        return isoTimestamp;
     }
 }

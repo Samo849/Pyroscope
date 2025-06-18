@@ -8,4 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="window_color">#EDEAE6</color>
+    <color name="sensor_card_background_color">#80AEA6</color>
+    <color name="red_stroke">#DB2E01</color>
+    <color name="grey_stroke">#707070</color>
+
 </resources>

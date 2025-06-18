@@ -1,6 +1,6 @@
 package com.example.fireapp.models;
 
-public class satelliteFireModel {
+public class satelliteFireModel implements DashboardItem {
     public int id;
     public double latitude;
     public double longitude;
@@ -17,4 +17,19 @@ public class satelliteFireModel {
     public double frp;
     public String daynight;
     public int type;
+
+    @Override
+    public String getId() {
+        return String.valueOf(id);
+    }
+
+    @Override
+    public String getType() {
+        return "Satellite";
+    }
+
+    @Override
+    public String getDisplayData() {
+        return "Brightness: " + brightness + ", Date: " + acq_date;
+    }
 }
