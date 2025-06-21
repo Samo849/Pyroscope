@@ -99,16 +99,16 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.SensorView
                 holder.cardView.setBackgroundResource(0);
                 // Reset to XML color
                 holder.cardView.setStrokeColor(
-                        holder.itemView.getContext().getResources().getColor(R.color.grey_stroke, null)
+                        holder.itemView.getContext().getResources().getColor(R.color.pastel_orange, null)
                 );
             }
         } else {
             holder.cardView.setBackgroundResource(0);
             holder.cardView.setCardBackgroundColor(
-                    holder.itemView.getContext().getResources().getColor(R.color.sensor_card_background_color, null)
+                    holder.itemView.getContext().getResources().getColor(R.color.window_color, null)
             );
             holder.cardView.setStrokeColor(
-                    holder.itemView.getContext().getResources().getColor(R.color.grey_stroke, null)
+                    holder.itemView.getContext().getResources().getColor(R.color.pastel_orange, null)
             );
         }
     }

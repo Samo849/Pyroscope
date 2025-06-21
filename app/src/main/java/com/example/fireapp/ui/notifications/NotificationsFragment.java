@@ -14,7 +14,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.fireapp.MainActivity;
 import com.example.fireapp.R;
+import com.example.fireapp.models.sensorDataModel;
 import com.example.fireapp.ui.dashboard.DashboardFragment;
 
 public class NotificationsFragment extends Fragment {
@@ -29,12 +31,13 @@ public class NotificationsFragment extends Fragment {
         notificationContainer = root.findViewById(R.id.notification_container);
         scrollView = root.findViewById(R.id.scroll_view);
 
-        // Add multiple sample fire warnings to ensure content is scrollable
-        addFireWarning("🔥 Fire Warning: Smoke detected in Zone A!");
-        addFireWarning("🔥 Fire Warning: Smoke detected in Zone B!");
-        addFireWarning("🔥 Fire Warning: High temperature in Zone C!");
-        addFireWarning("Warning!");
-        addFireWarning("Senosor03 Battery low!");
+        // Retrieve sensor data from MainActivity
+        for (sensorDataModel sensor : ((MainActivity) requireActivity()).sensorDataList) {
+            if (sensor.data.fire > 0.5) {
+                String message = "Fire Warning: High fire risk detected at Sensor ID: " + sensor.getId();
+                addFireWarning(message);
+            }
+        }
 
         // Hint at scrollability with a slight scroll animation
         new Handler(Looper.getMainLooper()).postDelayed(() -> {

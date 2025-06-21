@@ -49,9 +49,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="Close"
+                android:background="@drawable/rounded_button_background"
                 android:textColor="@color/white"
                 android:backgroundTint="@color/pastel_orange"
                 android:paddingHorizontal="16dp"/>
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
