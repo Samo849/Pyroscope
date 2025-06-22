@@ -1,5 +1,6 @@
 package com.example.fireapp.ui.home;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -24,21 +25,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.fireapp.ui.home.MarkerInfoBottomSheet;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentHomeBinding binding;
-
     GoogleMap mMap;
-
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -55,17 +51,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         return root;
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
-        // fires from assets
+        // Fires from assets
         List<satelliteFireModel> fires = ((MainActivity) requireActivity()).loadFires2023WithGson();
-        // Format the time
-
-
-
         if (fires != null) {
             for (satelliteFireModel fire : fires) {
                 String formattedTime = fire.acq_time.length() == 4
@@ -86,20 +78,18 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
             }
         }
-        // adding sensor markers
+
+        // Adding sensor markers
         List<sensorDataModel> sensors = ((MainActivity) requireActivity()).sensorDataList;
-
-
         LatLng sensorLocation = new LatLng(46.12, 14.31); // Default location for the camera
         if (sensors != null) {
             for (sensorDataModel sensor : sensors) {
                 sensorLocation = new LatLng(sensor.latitude, sensor.longitude);
                 String snippet = createSnippet(sensor);
 
-
                 String title = "Sensor data";
-                if(sensor.data.fire > 0.5) {
-                    title = "🔥New Fire detected!🔥" ;
+                if (sensor.data.fire > 0.5) {
+                    title = "🔥New Fire detected!🔥";
                 }
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(sensorLocation)
@@ -108,14 +98,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
                 sensor.marker = marker;
-
-
             }
         }
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sensorLocation, 12));
 
-        // manually added markers Add markers
-
+        // Manually added markers
         LatLng sensor03 = new LatLng(46.12, 14.31);
         Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fire);
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, 100, 120, true);
@@ -125,23 +112,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 .snippet("Blue default marker")
                 .icon(BitmapDescriptorFactory.fromBitmap(scaledBitmap)));
 
-        // Move the camera to the first marker
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                // Show BottomSheetDialogFragment with marker info
-                showMarkerInfo(marker);
-                return true;
-
-            }
+        mMap.setOnMarkerClickListener(marker -> {
+            // Show MarkerInfoActivity with marker info
+            showMarkerInfo(marker);
+            return true;
         });
-
-
     }
 
     public void updateSnippets(List<sensorDataModel> sensors) {
-        for(sensorDataModel sensor : sensors) {
+        for (sensorDataModel sensor : sensors) {
             if (sensor.marker != null) {
                 String snippet = createSnippet(sensor);
                 sensor.marker.setSnippet(snippet);
@@ -176,14 +155,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             createMarker(marker);
         }
 
-        com.example.fireapp.ui.home.MarkerInfoDialog dialog = com.example.fireapp.ui.home.MarkerInfoDialog.newInstance(
-                marker.getTitle(),
-                marker.getSnippet()
-        );
-        dialog.show(getChildFragmentManager(), "MarkerInfoDialog");
+        // Start MarkerInfoActivity instead of showing a DialogFragment
+        Intent intent = com.example.fireapp.ui.home.MarkerInfoActivity.newIntent(requireContext(), marker.getTitle(), marker.getSnippet());
+        startActivity(intent);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
     }
-
 
     @Override
     public void onDestroyView() {

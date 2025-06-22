@@ -30,6 +30,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.home.MarkerInfoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.Dialog"
+            android:windowSoftInputMode="adjustResize"/>
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="true">

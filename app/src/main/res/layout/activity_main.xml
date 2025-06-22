@@ -20,7 +20,7 @@
             android:layout_height="70dp"
             android:background="?attr/colorPrimary"
             app:title="@string/app_name"
-            app:titleTextColor="@color/text_color" />
+            app:titleTextColor="@color/title_text_color" />
 
 
     </com.google.android.material.appbar.AppBarLayout>
