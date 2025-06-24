@@ -4,4 +4,11 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="close_button">Close</string>
+    <string name="dismiss_button">Dismiss</string>
+    <string name="see_more_info_button">See more Info</string>
+    <string name="search_by_id">Search by ID</string>
+    <string name="marker_title">Marker Title</string>
+    <string name="marker_snippet">Marker Snippet</string>
+
 </resources>

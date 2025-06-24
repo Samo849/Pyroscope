@@ -29,7 +29,6 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:textColor="@color/text_color"/>
-        <!-- Details section -->
         <LinearLayout
             android:id="@+id/details_layout"
             android:orientation="vertical"

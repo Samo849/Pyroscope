@@ -32,7 +32,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/text_color"
                 android:paddingBottom="8dp"
-                android:text="Marker Title"/>
+                android:text="@string/marker_title"/>
 
             <TextView
                 android:id="@+id/marker_snippet"
@@ -41,14 +41,14 @@
                 android:textSize="14sp"
                 android:textColor="@color/text_color"
                 android:paddingBottom="16dp"
-                android:text="Marker Snippet"/>
+                android:text="@string/marker_snippet"/>
 
             <Button
                 android:id="@+id/close_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="Close"
+                android:text="@string/close_button"
                 android:background="@drawable/rounded_button_background"
                 android:textColor="@color/white"
                 android:backgroundTint="@color/pastel_orange"

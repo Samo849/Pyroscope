@@ -24,14 +24,12 @@ public class MarkerInfoActivity extends AppCompatActivity {
         TextView snippetTextView = findViewById(R.id.marker_snippet);
         findViewById(R.id.close_button).setOnClickListener(v -> finish());
 
-        // Retrieve data from intent
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             titleTextView.setText(extras.getString(EXTRA_TITLE));
             snippetTextView.setText(extras.getString(EXTRA_SNIPPET));
         }
 
-        // Set window size to 90% of screen width
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int dialogWidth = (int) (displayMetrics.widthPixels * 0.9);
@@ -39,7 +37,6 @@ public class MarkerInfoActivity extends AppCompatActivity {
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
     }
 
-    // Helper method to create an Intent for starting this Activity
     public static Intent newIntent(Context context, String title, String snippet) {
         Intent intent = new Intent(context, MarkerInfoActivity.class);
         intent.putExtra(EXTRA_TITLE, title);

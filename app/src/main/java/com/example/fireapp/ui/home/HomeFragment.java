@@ -133,6 +133,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 "\nApplication ID: " + sensor.applicationId +
                 "\nTime: " + sensor.timeOfDetection +
                 "\nSignal Quality: " + sensor.signalQuality +
+                "\n" +
                 "\nFire: " + sensor.data.fire + "%" +
                 "\nNormal: " + sensor.data.normal + "%" +
                 "\nWind: " + sensor.data.wind + "%" +

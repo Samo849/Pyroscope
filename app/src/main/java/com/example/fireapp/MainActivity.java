@@ -168,10 +168,6 @@ public class MainActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(request);
     }
 
-    // very ugly, but works. it parses the JSON response, if params are missing it fills them with default values
-
-
-
     private void updateSensorDataList(sensorDataModel newSensorData) {
         boolean sensorExists = false;
 
@@ -243,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             isFirstRun = false;
-                            periodicTask.run(); // Start the periodic task after 10 seconds
+                            periodicTask.run();
                         }
                     }, 2 * 1000);
                 } else {

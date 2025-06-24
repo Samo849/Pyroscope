@@ -88,7 +88,6 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.SensorView
                 animation.setEnterFadeDuration(400);
                 animation.setExitFadeDuration(400);
                 animation.start();
-                // Remove card background color so animation is visible
                 holder.cardView.setCardBackgroundColor(android.graphics.Color.TRANSPARENT);
                 holder.cardView.setStrokeColor(
                         holder.itemView.getContext().getResources().getColor(R.color.red_stroke, null)
@@ -97,7 +96,7 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.SensorView
 
             } else {
                 holder.cardView.setBackgroundResource(0);
-                // Reset to XML color
+
                 holder.cardView.setStrokeColor(
                         holder.itemView.getContext().getResources().getColor(R.color.pastel_orange, null)
                 );

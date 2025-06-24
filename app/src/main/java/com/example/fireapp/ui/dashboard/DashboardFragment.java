@@ -70,7 +70,6 @@ public class DashboardFragment extends Fragment {
             details.append("ID: ").append(item.getId()).append("\n");
             details.append(item.getDisplayData()).append("\n");
 
-            // Add more fields based on type
             if (item instanceof sensorDataModel) {
                 sensorDataModel sensor = (sensorDataModel) item;
                 details.append("Application ID: ").append(sensor.applicationId).append("\n");

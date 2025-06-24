@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:gravity="start"
-        android:hint="Search by ID"
+        android:hint="@string/search_by_id"
         android:background="@drawable/rounded_search_bar_background"
         android:paddingStart="16dp"
         android:paddingEnd="12dp"
